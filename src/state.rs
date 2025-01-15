@@ -1,6 +1,6 @@
 use std::{sync::Arc, time::{SystemTime, UNIX_EPOCH}};
 
-use learn_wgpu::{Vertex, VERTICES};
+use learn_wgpu::{Vertex, INDICES, VERTICES};
 use wgpu::{util::DeviceExt, Surface};
 // lib.rs
 use winit::{
@@ -21,7 +21,8 @@ pub struct State {
     // unsafe references to the window's resources.
     render_pipeline: wgpu::RenderPipeline,
     vertex_buffer: wgpu::Buffer,
-    num_vertices: u32,
+    index_buffer: wgpu::Buffer,
+    num_indices: u32,
 }
 
 impl State {
@@ -147,7 +148,14 @@ impl State {
             }
         );
 
-        let num_vertices = VERTICES.len() as u32;
+        let index_buffer = device.create_buffer_init(
+            &wgpu::util::BufferInitDescriptor {
+                label: Some("Index Buffer"),
+                contents: bytemuck::cast_slice(INDICES),
+                usage: wgpu::BufferUsages::INDEX,
+            }
+        );
+        let num_indices = INDICES.len() as u32;
 
         Self {
             surface,
@@ -164,7 +172,8 @@ impl State {
             b: 0.0,
             render_pipeline,
             vertex_buffer,
-            num_vertices,
+            index_buffer,
+            num_indices,
         }
     }
 
@@ -216,9 +225,10 @@ impl State {
                 occlusion_query_set: None,
                 timestamp_writes: None,
             });
-            render_pass.set_pipeline(&self.render_pipeline); // 2.
+            render_pass.set_pipeline(&self.render_pipeline);
             render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
-            render_pass.draw(0..self.num_vertices, 0..1); // 3.
+            render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16); // 1.
+            render_pass.draw_indexed(0..self.num_indices, 0, 0..1); // 2.
         }
 
         // submit will accept anything that implements IntoIter
