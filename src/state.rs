@@ -51,7 +51,7 @@ impl State {
                     force_fallback_adapter: false,
                 },
             )
-        ).unwrap();
+        ).expect("Adapater should exist");
 
         let (device, queue) = pollster::block_on(
             adapter.request_device(
@@ -63,7 +63,7 @@ impl State {
                 },
                 None, // Trace path
             )
-        ).unwrap();
+        ).expect("Device and queue should exist");
 
         let surface_caps = surface.get_capabilities(&adapter);
         // Shader code in this tutorial assumes an sRGB surface texture. Using a different
