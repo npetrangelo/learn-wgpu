@@ -1,7 +1,7 @@
-use std::{sync::Arc, time::{SystemTime, UNIX_EPOCH}};
+use std::sync::Arc;
 
 use learn_wgpu::{Vertex, INDICES, VERTICES};
-use wgpu::{util::DeviceExt, Surface};
+use wgpu::util::DeviceExt;
 // lib.rs
 use winit::{
     event::WindowEvent,
@@ -32,7 +32,7 @@ impl State {
 
         // The instance is a handle to our GPU
         // Backends::all => Vulkan + Metal + DX12 + Browser WebGPU
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
             backends: wgpu::Backends::all(),
             ..Default::default()
         });
