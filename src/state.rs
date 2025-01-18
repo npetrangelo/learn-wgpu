@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{borrow::Cow, sync::Arc};
 
 use learn_wgpu::{Vertex, INDICES, VERTICES};
 use wgpu::util::DeviceExt;
@@ -86,7 +86,12 @@ impl State {
         };
         surface.configure(&device, &config);
 
-        let shader = device.create_shader_module(wgpu::include_wgsl!("test.wgsl"));
+        let source = std::fs::read_to_string("src/test.wgsl")
+            .expect("reading shader failed");
+        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+            label: Some("test"),
+            source: wgpu::ShaderSource::Wgsl(Cow::Borrowed(&source)),
+        });
 
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
